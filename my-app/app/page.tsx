@@ -1,11 +1,13 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 
 export default function Home() {
   const SOAP_PRICE = 9;
   const BALM_PRICE = 35;
+
+  const soapsRef = useRef<HTMLDivElement | null>(null);
 
   type Product = {
     name: string;
@@ -29,6 +31,99 @@ export default function Home() {
     { name: "MIDNIGHT RIDE", desc: "Bold & Spicy", price: SOAP_PRICE },
   ];
 
+  const allReviews = [
+    {
+      id: 1,
+      name: "Jess Santiago",
+      role: "verified customer",
+      text: "Customer reviews",
+      long: false,
+      stars: 5,
+      date: "22.03.2021",
+    },
+    {
+      id: 2,
+      name: "Jess Santiago",
+      role: "verified customer",
+      text: "Customer reviews",
+      long: false,
+      stars: 5,
+      date: "22.03.2021",
+    },
+    {
+      id: 3,
+      name: "Cali Huffman",
+      role: "verified customer",
+      text: "There’s no other program that walks you through exactly what you need to know to start an online store fast, written by someone who has built several 7-figure ecommerce businesses from scratch. What’s more, everything has been broken down in step-by-step detail with real action plans including finding your niche.",
+      long: true,
+      stars: 5,
+      date: "22.03.2021",
+    },
+    {
+      id: 4,
+      name: "Cali Huffman",
+      role: "verified customer",
+      text: "There’s no other program that walks you through exactly what you need to know to start an online store fast, written by someone who has built several 7-figure ecommerce businesses from scratch. What’s more, everything has been broken down in step-by-step detail with real action plans including finding your niche.",
+      long: true,
+      stars: 5,
+      date: "22.03.2021",
+    },
+    {
+      id: 5,
+      name: "Cali Huffman",
+      role: "verified customer",
+      text: "There’s no other program that walks you through exactly what you need to know to start an online store fast, written by someone who has built several 7-figure ecommerce businesses from scratch. What’s more, everything has been broken down in step-by-step detail with real action plans including finding your niche.",
+      long: true,
+      stars: 5,
+      date: "22.03.2021",
+    },
+    {
+      id: 6,
+      name: "Cali Huffman",
+      role: "verified customer",
+      text: "There’s no other program that walks you through exactly what you need to know to start an online store fast, written by someone who has built several 7-figure ecommerce businesses from scratch. What’s more, everything has been broken down in step-by-step detail with real action plans including finding your niche.",
+      long: true,
+      stars: 5,
+      date: "22.03.2021",
+    },
+    {
+      id: 7,
+      name: "Cali Huffman",
+      role: "verified customer",
+      text: "There’s no other program that walks you through exactly what you need to know to start an online store fast, written by someone who has built several 7-figure ecommerce businesses from scratch. What’s more, everything has been broken down in step-by-step detail with real action plans including finding your niche.",
+      long: true,
+      stars: 5,
+      date: "22.03.2021",
+    },
+    {
+      id: 8,
+      name: "Cali Huffman",
+      role: "verified customer",
+      text: "There’s no other program that walks you through exactly what you need to know to start an online store fast, written by someone who has built several 7-figure ecommerce businesses from scratch. What’s more, everything has been broken down in step-by-step detail with real action plans including finding your niche.",
+      long: true,
+      stars: 5,
+      date: "22.03.2021",
+    },
+    {
+      id: 9,
+      name: "Denny Rawlings",
+      role: "verified customer",
+      text: "UX Designer",
+      long: false,
+      stars: 4,
+      date: "22.03.2021",
+    },
+    {
+      id: 10,
+      name: "Denny Rawlings",
+      role: "verified customer",
+      text: "UX Designer",
+      long: false,
+      stars: 4,
+      date: "22.03.2021",
+    },
+  ];
+
   const balmsList: Product[] = [
     { name: "BALM OF THE BRAVE", price: BALM_PRICE },
     { name: "VALOR BALM", price: BALM_PRICE },
@@ -42,6 +137,23 @@ export default function Home() {
     { name: "SOAP SACK", price: 0, qty: 1 },
     { name: "FREEDOM SOCKS", price: 0, qty: 1 },
   ];
+
+  const [visibleCount, setVisibleCount] = useState(4);
+
+  const showMoreReviews = () => {
+    setVisibleCount((prev) => {
+      const next = prev + 4;
+      return next > allReviews.length ? allReviews.length : next;
+    });
+
+    // Smooth scroll to the bottom of the reviews
+    setTimeout(() => {
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: "smooth",
+      });
+    }, 150);
+  };
 
   const [arsenal, setArsenal] = useState<ArsenalItem[]>([]);
   const [soapCount, setSoapCount] = useState<number>(0);
@@ -120,7 +232,7 @@ export default function Home() {
         </div>
 
         {/* Content Container */}
-        <div className="container max-w-[1100px] px-6 md:px-10 lg:px-0 py-16 md:py-16 bg-red-500 flex flex-col md:flex-row items-center md:items-start justify-between relative z-10">
+        <div className="container max-w-[1100px] px-6 md:px-10 lg:px-0 py-16 md:py-16 flex flex-col md:flex-row items-center md:items-start justify-between relative z-10">
           {/* ---------- LEFT TEXT SIDE ---------- */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -160,6 +272,9 @@ export default function Home() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                soapsRef.current?.scrollIntoView({ behavior: "smooth" });
+              }}
               className="mt-10 bg-[#A4161A] text-white text-[20px] tracking-wide px-10 py-4 rounded-md shadow-md hover:bg-[#7A0C0C] transition-all font-sans"
             >
               BUILD MY ARSENAL NOW
@@ -185,7 +300,7 @@ export default function Home() {
       </section>
 
       {/* STEP 1: CHOOSE SOAPS */}
-      <section className="w-full bg-white py-24">
+      <section ref={soapsRef} className="w-full bg-white py-24">
         <div className="container max-w-[1100px] mx-auto px-6">
           <div className="text-center mb-12">
             <h3 className="text-[#002E5B] text-2xl tracking-wide font-sans mb-2">STEP 1</h3>
@@ -536,16 +651,28 @@ export default function Home() {
           </h2>
           <p className="text-gray-700 text-lg font-sans mb-12">@rightwingnaturals</p>
 
-          {/* Video Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((num) => (
-              <div
-                key={num}
-                className="bg-gray-200 h-[250px] rounded-md flex items-center justify-center text-gray-700 text-lg font-sans"
-              >
-                Video 0{num}.
-              </div>
-            ))}
+          {/* Video Carousel */}
+          <div className="relative overflow-hidden w-full">
+            <div className="flex gap-6 w-max animate-[scrollVideos_25s_linear_infinite]">
+              {[1,2,3,4,5,6,7,8].map((num) => (
+                <div
+                  key={num}
+                  className="bg-gray-200 min-w-[250px] h-[250px] rounded-md flex items-center justify-center text-gray-700 text-lg font-sans"
+                >
+                  Video 0{num}.
+                </div>
+              ))}
+
+              {/* Duplicate list for seamless infinite scroll */}
+              {[1,2,3,4,5,6,7,8].map((num) => (
+                <div
+                  key={`dup-${num}`}
+                  className="bg-gray-200 min-w-[250px] h-[250px] rounded-md flex items-center justify-center text-gray-700 text-lg font-sans"
+                >
+                  Video 0{num}.
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -626,9 +753,10 @@ export default function Home() {
         </div>
       </section>
 
-{/* ---------------- NINTH SECTION: REAL RESULTS FROM REAL PATRIOTS ---------------- */}
+      {/* ---------------- NINTH SECTION: REAL RESULTS FROM REAL PATRIOTS ---------------- */}
 <section className="w-full bg-white py-24 relative">
   <div className="container max-w-[1100px] mx-auto px-6">
+    
     {/* Header */}
     <div className="text-center mb-16">
       <h3 className="text-[#002E5B] text-2xl tracking-wide font-sans mb-2">
@@ -640,140 +768,54 @@ export default function Home() {
     </div>
 
     {/* Reviews Grid */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-8">
-      {/* Review 1 */}
-      <div className="bg-[#F9F9F9] rounded-xl p-6 shadow-sm flex flex-col justify-between">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-[35px] h-[35px] bg-gray-300 rounded-full"></div>
-            <div>
-              <p className="text-sm font-semibold text-[#002E5B]">Jess Santiago</p>
-              <p className="text-xs text-gray-500">verified customer</p>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+      {allReviews.slice(0, visibleCount).map((review) => (
+        <div
+          key={review.id}
+          className="bg-[#F9F9F9] rounded-xl p-6 shadow-sm flex flex-col justify-between"
+        >
+          <div>
+            {/* Avatar + Name */}
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-[40px] h-[40px] bg-gray-300 rounded-full"></div>
+              <div>
+                <p className="text-sm font-bold text-[#002E5B]">{review.name}</p>
+                <p className="text-xs text-gray-500">{review.role}</p>
+              </div>
             </div>
-          </div>
-          <p className="text-gray-800 text-sm font-sans mb-3">
-            Customer reviews
-          </p>
-          <div className="flex items-center text-[#A4161A] text-lg mb-2">
-            ★★★★★
-          </div>
-        </div>
-        <p className="text-xs text-gray-500 text-right">22.03.2021</p>
-      </div>
 
-      {/* Review 2 */}
-      <div className="bg-[#F9F9F9] rounded-xl p-6 shadow-sm flex flex-col justify-between">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-[35px] h-[35px] bg-gray-300 rounded-full"></div>
-            <div>
-              <p className="text-sm font-semibold text-[#002E5B]">Jess Santiago</p>
-              <p className="text-xs text-gray-500">verified customer</p>
-            </div>
-          </div>
-          <p className="text-gray-800 text-sm font-sans mb-3">
-            Customer reviews
-          </p>
-          <div className="flex items-center text-[#A4161A] text-lg mb-2">
-            ★★★★★
-          </div>
-        </div>
-        <p className="text-xs text-gray-500 text-right">22.03.2021</p>
-      </div>
+            {/* Review Text */}
+            <p className="text-gray-800 text-sm font-sans leading-relaxed mb-4">
+              {review.text}
+            </p>
 
-      {/* Review 3 */}
-      <div className="bg-[#F9F9F9] rounded-xl p-6 shadow-sm flex flex-col justify-between">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-[35px] h-[35px] bg-gray-300 rounded-full"></div>
-            <div>
-              <p className="text-sm font-semibold text-[#002E5B]">Cali Huffman</p>
-              <p className="text-xs text-gray-500">verified customer</p>
+            {/* Stars */}
+            <div className="flex items-center text-[#A4161A] text-lg mb-2">
+              {"★".repeat(review.stars)}
+              {"☆".repeat(5 - review.stars)}
             </div>
           </div>
-          <p className="text-gray-800 text-sm font-sans mb-3">
-            There’s no other program that walks you through exactly what you need
-            to know to start an online store fast, written by someone who has built
-            several 7-figure ecommerce businesses from scratch. What’s more,
-            everything has been broken down in step-by-step detail with real action
-            plans including finding your niche.
-          </p>
-          <div className="flex items-center text-[#A4161A] text-lg mb-2">
-            ★★★★★
-          </div>
-        </div>
-        <p className="text-xs text-gray-500 text-right">22.03.2021</p>
-      </div>
 
-      {/* Review 4 */}
-      <div className="bg-[#F9F9F9] rounded-xl p-6 shadow-sm flex flex-col justify-between">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-[35px] h-[35px] bg-gray-300 rounded-full"></div>
-            <div>
-              <p className="text-sm font-semibold text-[#002E5B]">Cali Huffman</p>
-              <p className="text-xs text-gray-500">verified customer</p>
-            </div>
-          </div>
-          <p className="text-gray-800 text-sm font-sans mb-3">
-            There’s no other program that walks you through exactly what you need
-            to know to start an online store fast, written by someone who has built
-            several 7-figure ecommerce businesses from scratch. What’s more,
-            everything has been broken down in step-by-step detail with real action
-            plans including finding your niche.
-          </p>
-          <div className="flex items-center text-[#A4161A] text-lg mb-2">
-            ★★★★★
-          </div>
+          {/* Date */}
+          <p className="text-xs text-gray-500 text-right">{review.date}</p>
         </div>
-        <p className="text-xs text-gray-500 text-right">22.03.2021</p>
-      </div>
-
-      {/* Review 5 */}
-      <div className="bg-[#F2F2F2] opacity-70 rounded-xl p-6 shadow-sm flex flex-col justify-between">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-[35px] h-[35px] bg-gray-300 rounded-full"></div>
-            <div>
-              <p className="text-sm font-semibold text-[#002E5B]">Denny Rawlings</p>
-              <p className="text-xs text-gray-500">verified customer</p>
-            </div>
-          </div>
-          <p className="text-gray-800 text-sm font-sans mb-3">UX Designer</p>
-          <div className="flex items-center text-[#A4161A] text-lg mb-2">
-            ★★★★☆
-          </div>
-        </div>
-        <p className="text-xs text-gray-500 text-right">22.03.2021</p>
-      </div>
-
-      {/* Review 6 */}
-      <div className="bg-[#F2F2F2] opacity-70 rounded-xl p-6 shadow-sm flex flex-col justify-between">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-[35px] h-[35px] bg-gray-300 rounded-full"></div>
-            <div>
-              <p className="text-sm font-semibold text-[#002E5B]">Denny Rawlings</p>
-              <p className="text-xs text-gray-500">verified customer</p>
-            </div>
-          </div>
-          <p className="text-gray-800 text-sm font-sans mb-3">UX Designer</p>
-          <div className="flex items-center text-[#A4161A] text-lg mb-2">
-            ★★★★☆
-          </div>
-        </div>
-        <p className="text-xs text-gray-500 text-right">22.03.2021</p>
-      </div>
+      ))}
     </div>
 
-    {/* Down Arrow */}
-    <div className="flex justify-center mt-16">
-      <div className="w-[45px] h-[45px] border-2 border-[#A4161A] rounded-full flex items-center justify-center">
-        <div className="text-[#A4161A] text-2xl">▼</div>
+    {/* Load More */}
+    {visibleCount < allReviews.length && (
+      <div className="flex justify-center mt-16">
+        <button
+          onClick={showMoreReviews}
+          className="w-[45px] h-[45px] border-2 border-[#A4161A] rounded-full flex items-center justify-center hover:bg-[#A4161A] hover:text-white transition"
+        >
+          <div className="text-[#A4161A] text-2xl">▼</div>
+        </button>
       </div>
-    </div>
+    )}
   </div>
 </section>
+
 
     </main>
   );
