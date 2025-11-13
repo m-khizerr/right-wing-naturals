@@ -1,11 +1,98 @@
 "use client";
-
+import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 
 export default function Home() {
+  const SOAP_PRICE = 9;
+  const BALM_PRICE = 35;
+
+  type Product = {
+    name: string;
+    price: number;
+    desc?: string;
+  };
+
+  type ArsenalItem = Product & {
+    qty: number;
+  };
+
+  const soapsList: Product[] = [
+    { name: "DARK HORSE", desc: "Black Raspberries and Vanilla Bean", price: SOAP_PRICE },
+    { name: "KINGDOM OF THE WEST", desc: "Western Cedar & Musk", price: SOAP_PRICE },
+    { name: "BRYSON WOODS", desc: "Oak & Leather", price: SOAP_PRICE },
+    { name: "PINE & PILSNER", desc: "Pine & Hops", price: SOAP_PRICE },
+    { name: "CEDAR GONE WILD", desc: "Cedarwood Blend", price: SOAP_PRICE },
+    { name: "FRANKINSEXY", desc: "Frankincense & Myrrh", price: SOAP_PRICE },
+    { name: "FRESHLY MINTED", desc: "Peppermint Cool", price: SOAP_PRICE },
+    { name: "RAZZLE DAZZLE", desc: "Sweet Raspberry", price: SOAP_PRICE },
+    { name: "MIDNIGHT RIDE", desc: "Bold & Spicy", price: SOAP_PRICE },
+  ];
+
+  const balmsList: Product[] = [
+    { name: "BALM OF THE BRAVE", price: BALM_PRICE },
+    { name: "VALOR BALM", price: BALM_PRICE },
+    { name: "HONOR BALM", price: BALM_PRICE },
+    { name: "FREEDOM BALM", price: BALM_PRICE },
+  ];
+
+  // Give free gifts a qty so they can be safely included in totals
+  const freeGifts: ArsenalItem[] = [
+    { name: "SOAP TREE", price: 0, qty: 1 },
+    { name: "SOAP SACK", price: 0, qty: 1 },
+    { name: "FREEDOM SOCKS", price: 0, qty: 1 },
+  ];
+
+  const [arsenal, setArsenal] = useState<ArsenalItem[]>([]);
+  const [soapCount, setSoapCount] = useState<number>(0);
+  const [balmSelected, setBalmSelected] = useState<boolean>(false);
+
+  const addSoap = (soap: Product) => {
+    if (soapCount >= 8) return alert("You can only select 8 soaps.");
+    setArsenal((prev) => {
+      const existing = prev.find((item) => item.name === soap.name);
+      if (existing) {
+        return prev.map((item) =>
+          item.name === soap.name ? { ...item, qty: item.qty + 1 } : item
+        );
+      } else {
+        return [...prev, { ...soap, qty: 1 }];
+      }
+    });
+    setSoapCount((c) => c + 1);
+  };
+
+  const addBalm = (balm: Product) => {
+    if (balmSelected) return alert("You can only select 1 balm.");
+    setArsenal((prev) => [...prev, { ...balm, qty: 1 }]);
+    setBalmSelected(true);
+  };
+
+  const removeItem = (name: string) => {
+    setArsenal((prev) =>
+      prev
+        .map((item) => {
+          if (item.name === name && item.qty > 1) return { ...item, qty: item.qty - 1 };
+          if (item.name === name && item.qty === 1) return null;
+          return item;
+        })
+        .filter(Boolean) as ArsenalItem[]
+    );
+    if (soapsList.some((s) => s.name === name)) setSoapCount((c) => c - 1);
+    if (balmsList.some((b) => b.name === name)) setBalmSelected(false);
+  };
+
+  // Add free gifts automatically
+  const eligible = soapCount === 8 && balmSelected;
+  const displayedItems = eligible
+    ? [...arsenal, ...freeGifts.filter((g) => !arsenal.some((a) => a.name === g.name))]
+    : arsenal;
+
+  const total = displayedItems.reduce((sum, i) => sum + i.price * i.qty, 0);
+
   return (
     <main className="flex flex-col items-center justify-start min-h-screen bg-white overflow-hidden font-[Bebas_Neue]">
+      {/* ---- Keep everything above as is ---- */}
       {/* ---------------- HEADER ---------------- */}
       <header className="w-full flex justify-center bg-black py-4">
         <div className="container max-w-[1100px] flex justify-center">
@@ -33,7 +120,7 @@ export default function Home() {
         </div>
 
         {/* Content Container */}
-        <div className="container max-w-[1100px] px-6 md:px-10 lg:px-0 py-16 md:py-24 flex flex-col md:flex-row items-center md:items-start justify-between relative z-10">
+        <div className="container max-w-[1100px] px-6 md:px-10 lg:px-0 py-16 md:py-16 bg-red-500 flex flex-col md:flex-row items-center md:items-start justify-between relative z-10">
           {/* ---------- LEFT TEXT SIDE ---------- */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -97,129 +184,86 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ---------------- SECOND SECTION: CHOOSE 8 SOAPS ---------------- */}
+      {/* STEP 1: CHOOSE SOAPS */}
       <section className="w-full bg-white py-24">
         <div className="container max-w-[1100px] mx-auto px-6">
-          {/* Section Header */}
           <div className="text-center mb-12">
-            <h3 className="text-[#002E5B] text-2xl tracking-wide font-sans mb-2">
-              STEP 1
-            </h3>
-            <h2 className="text-[#A4161A] text-[64px] leading-none font-bold">
-              CHOOSE 8 SOAPS
-            </h2>
+            <h3 className="text-[#002E5B] text-2xl tracking-wide font-sans mb-2">STEP 1</h3>
+            <h2 className="text-[#A4161A] text-[64px] leading-none font-bold">CHOOSE 8 SOAPS</h2>
           </div>
 
-          {/* Grid + Sidebar */}
           <div className="flex flex-col lg:flex-row gap-10">
-            {/* Soaps Grid */}
+            {/* Soaps */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 flex-1">
-              {[...Array(9)].map((_, i) => (
-                <div
-                  key={i}
-                  className="border rounded-md shadow-sm hover:shadow-md transition-all bg-white overflow-hidden"
-                >
-                  {/* Soap Header */}
-                  <div className="bg-[#A4161A] py-2 text-center text-white text-xl font-bold">
-                    DARK HORSE
+              {soapsList.map((soap, i) => (
+                <div key={i} className="border rounded-md shadow-sm w-full hover:shadow-md flex flex-col justify-between transition-all bg-white overflow-hidden">
+                  <div className="bg-[#A4161A] py-2 text-center text-white text-xl font-bold">{soap.name}</div>
+                  <div className="flex justify-center items-center">
+                    <Image src="/image 6 (5).png" alt="Soap" width={210} height={150}  />
                   </div>
-                  <div className="flex justify-center items-center py-6">
-                    <Image
-                      src="/darkhorse.png"
-                      alt="Soap"
-                      width={150}
-                      height={150}
-                      className="object-contain"
-                    />
+                  <div className="flex flex-col justify-center text-center w-full p-2">
+                    <h3 className="text-[16px] font-bold text-black mb-2">{soap.desc}</h3>
+                    <p className="text-sm text-gray-400 font-sans mb-4">Razzle Dazzle smells like sweet black raspberry jam and warm vanilla. It's one of the most likable fragrances and it's even more popular because of its' purple spots! (Example text)</p>
                   </div>
-
-                  {/* Soap Description */}
                   <div className="px-4 pb-6 text-center">
-                    <h3 className="text-[16px] font-bold font-sans mb-2">
-                      Black Raspberries and Vanilla Bean
-                    </h3>
-                    <p className="text-sm text-gray-600 font-sans">
-                      Razzle Dazzle smells like sweet black raspberry jam and
-                      warm vanilla. It’s one of the most likable fragrances and
-                      it’s even more popular because of its purple spots!
-                    </p>
-
-                    <button className="mt-4 bg-black text-white w-full py-2 rounded-md text-sm font-bold tracking-wide hover:bg-gray-900 transition">
-                      SHOP NOW →
+                    <button
+                      onClick={() => addSoap(soap)}
+                      className="mt-2 bg-black text-white w-full py-2 rounded-md text-sm font-bold tracking-wide hover:bg-gray-900 transition"
+                    >
+                      SELECT SOAP →
                     </button>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Sidebar */}
-            <div className="w-full lg:w-[320px] bg-[#0F172A] text-white p-6 rounded-lg shadow-md font-sans">
+            {/* Arsenal Sidebar */}
+            <div className="w-full lg:w-[320px] bg-[#0F172A] text-white p-6 rounded-lg shadow-md font-sans max-h-fit">
               <h3 className="text-2xl font-bold mb-4">Your Arsenal</h3>
+
               <ul className="text-sm space-y-1 mb-6">
-                <li>DARK HORSE × 2&nbsp;&nbsp;&nbsp;$18.00</li>
-                <li>KINGDOM OF THE WEST × 1&nbsp;&nbsp;&nbsp;$9.00</li>
-                <li>BRYSON WOODS × 1&nbsp;&nbsp;&nbsp;$9.00</li>
-                <li>PINE & PILSNER × 1&nbsp;&nbsp;&nbsp;$9.00</li>
-                <li>CEDAR GONE WILD × 1&nbsp;&nbsp;&nbsp;$9.00</li>
-                <li>FRANKINSEXY × 1&nbsp;&nbsp;&nbsp;$9.00</li>
-                <li>FRESHLY MINTED × 1&nbsp;&nbsp;&nbsp;$9.00</li>
-                <li>BALM OF THE BRAVE × 1&nbsp;&nbsp;&nbsp;$35.00</li>
+                {displayedItems.map((item, idx) => (
+                  <li key={idx} className="flex justify-between items-center">
+                    <span>{item.name} × {item.qty}</span>
+                    <div className="flex items-center gap-2">
+                      <span>${(item.price * item.qty).toFixed(2)}</span>
+                      <button onClick={() => removeItem(item.name)} className="text-red-400 text-xs hover:text-red-600">✕</button>
+                    </div>
+                  </li>
+                ))}
               </ul>
 
               <div className="border-t border-gray-700 my-4"></div>
-              <ul className="text-sm space-y-1 mb-6">
-                <li>Scent Swap Card&nbsp;&nbsp;&nbsp;$18.00</li>
-                <li>Shipping (Free)&nbsp;&nbsp;&nbsp;$9.99</li>
-                <li>Shipping Protection&nbsp;&nbsp;&nbsp;$4.99</li>
-              </ul>
-
-              <div className="border-t border-gray-700 my-4"></div>
-              <p className="text-sm">Total Value: $139.98</p>
-              <p className="text-sm">Bundle Price: $99.00</p>
-              <p className="text-sm mb-6">Mystery Bars (2-pack): $9.00</p>
-              <h4 className="text-xl font-bold mb-4">Total: $108.00</h4>
+              <h4 className="text-xl font-bold mb-4">Total: ${total.toFixed(2)}</h4>
 
               <button className="w-full bg-[#A4161A] py-3 rounded-md font-bold text-white text-sm hover:bg-[#7A0C0C] transition">
-                Add My Arsenal to Cart — $108
+                Add My Arsenal to Cart — ${total.toFixed(2)}
               </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ---------------- THIRD SECTION: CHOOSE 1 BALM ---------------- */}
+      {/* STEP 2: CHOOSE BALM */}
       <section className="w-full bg-white py-24">
         <div className="container max-w-[1100px] mx-auto px-6">
           <div className="text-center mb-12">
-            <h3 className="text-[#002E5B] text-2xl tracking-wide font-sans mb-2">
-              STEP 2
-            </h3>
-            <h2 className="text-[#A4161A] text-[64px] leading-none font-bold">
-              CHOOSE 1 BALM
-            </h2>
+            <h3 className="text-[#002E5B] text-2xl tracking-wide font-sans mb-2">STEP 2</h3>
+            <h2 className="text-[#A4161A] text-[64px] leading-none font-bold">CHOOSE 1 BALM</h2>
           </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
-            {[...Array(4)].map((_, i) => (
-              <div
-                key={i}
-                className="border rounded-md shadow-sm hover:shadow-md transition-all bg-white overflow-hidden"
-              >
-                <div className="bg-[#A4161A] py-2 text-center text-white text-xl font-bold">
-                  BALM OF THE BRAVE
-                </div>
+            {balmsList.map((balm, i) => (
+              <div key={i} className="border rounded-md shadow-sm hover:shadow-md transition-all bg-white overflow-hidden">
+                <div className="bg-[#A4161A] py-2 text-center text-white text-xl font-bold">{balm.name}</div>
                 <div className="flex justify-center items-center py-6">
-                  <Image
-                    src="/image 6 (1).png"
-                    alt="Balm"
-                    width={180}
-                    height={180}
-                    className="object-contain"
-                  />
+                  <Image src="/image 6 (1).png" alt="Balm" width={180} height={180} />
                 </div>
                 <div className="px-4 pb-6 text-center">
-                  <button className="mt-2 bg-black text-white w-full py-2 rounded-md text-sm font-bold tracking-wide hover:bg-gray-900 transition">
-                    {i % 2 === 0 ? "SELECT" : "SHOP NOW"}
+                  <button
+                    onClick={() => addBalm(balm)}
+                    className="mt-2 bg-black text-white w-full py-2 rounded-md text-sm font-bold tracking-wide hover:bg-gray-900 transition"
+                  >
+                    SELECT BALM →
                   </button>
                 </div>
               </div>
@@ -227,7 +271,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* ---------------- FOURTH SECTION: PICK 3 FREE GIFTS ---------------- */}
       <section className="w-full bg-white py-24">
         <div className="container max-w-[1100px] mx-auto px-6">
@@ -398,7 +441,7 @@ export default function Home() {
             {/* Item 1 */}
             <div className="bg-[#FCE7E7] rounded-md p-8 text-center flex flex-col items-center justify-center shadow-sm">
               <div className="w-[70px] h-[70px] bg-white rounded-full flex items-center justify-center text-[#A4161A] font-bold mb-4">
-                <Image src="/icon-soap.png" alt="Soap Icon" width={40} height={40} />
+                <Image src="/Vector (1).png" alt="Soap Icon" width={40} height={40} />
               </div>
               <h3 className="text-lg font-bold text-[#A4161A] mb-1">
                 8 BAR SOAPS
@@ -409,7 +452,7 @@ export default function Home() {
             {/* Item 2 */}
             <div className="bg-[#E9F2FA] rounded-md p-8 text-center flex flex-col items-center justify-center shadow-sm">
               <div className="w-[70px] h-[70px] bg-white rounded-full flex items-center justify-center text-[#002E5B] font-bold mb-4">
-                <Image src="/icon-balm.png" alt="Balm Icon" width={40} height={40} />
+                <Image src="/Vector (2).png" alt="Balm Icon" width={40} height={40} />
               </div>
               <h3 className="text-lg font-bold text-[#002E5B] mb-1">
                 1 BALM OF THE BRAVE
@@ -420,7 +463,7 @@ export default function Home() {
             {/* Item 3 */}
             <div className="bg-[#FCE7E7] rounded-md p-8 text-center flex flex-col items-center justify-center shadow-sm">
               <div className="w-[70px] h-[70px] bg-white rounded-full flex items-center justify-center text-[#A4161A] font-bold mb-4">
-                <Image src="/icon-tree.png" alt="Soap Tree Icon" width={40} height={40} />
+                <Image src="/Vector (3).png" alt="Soap Tree Icon" width={40} height={40} />
               </div>
               <h3 className="text-lg font-bold text-[#A4161A] mb-1">
                 SOAP TREE (FREE)
@@ -431,7 +474,7 @@ export default function Home() {
             {/* Item 4 */}
             <div className="bg-[#E9F2FA] rounded-md p-8 text-center flex flex-col items-center justify-center shadow-sm">
               <div className="w-[70px] h-[70px] bg-white rounded-full flex items-center justify-center text-[#002E5B] font-bold mb-4">
-                <Image src="/icon-sack.png" alt="Soap Sack Icon" width={40} height={40} />
+                <Image src="/Vector (4).png" alt="Soap Sack Icon" width={40} height={40} />
               </div>
               <h3 className="text-lg font-bold text-[#002E5B] mb-1">
                 SOAP SACK (FREE)
@@ -442,7 +485,7 @@ export default function Home() {
             {/* Item 5 */}
             <div className="bg-[#FCE7E7] rounded-md p-8 text-center flex flex-col items-center justify-center shadow-sm">
               <div className="w-[70px] h-[70px] bg-white rounded-full flex items-center justify-center text-[#A4161A] font-bold mb-4">
-                <Image src="/icon-socks.png" alt="Socks Icon" width={40} height={40} />
+                <Image src="/Vector (5).png" alt="Socks Icon" width={40} height={40} />
               </div>
               <h3 className="text-lg font-bold text-[#A4161A] mb-1">
                 FREEDOM SOCKS (FREE)
@@ -453,7 +496,7 @@ export default function Home() {
             {/* Item 6 */}
             <div className="bg-[#E9F2FA] rounded-md p-8 text-center flex flex-col items-center justify-center shadow-sm">
               <div className="w-[70px] h-[70px] bg-white rounded-full flex items-center justify-center text-[#002E5B] font-bold mb-4">
-                <Image src="/icon-card.png" alt="Card Icon" width={40} height={40} />
+                <Image src="/Vector (6).png" alt="Card Icon" width={40} height={40} />
               </div>
               <h3 className="text-lg font-bold text-[#002E5B] mb-1">
                 SCENT SWAP CARD
@@ -464,7 +507,7 @@ export default function Home() {
             {/* Item 7 */}
             <div className="bg-[#FCE7E7] rounded-md p-8 text-center flex flex-col items-center justify-center shadow-sm">
               <div className="w-[70px] h-[70px] bg-white rounded-full flex items-center justify-center text-[#A4161A] font-bold mb-4">
-                <Image src="/icon-truck.png" alt="Shipping Icon" width={40} height={40} />
+                <Image src="/Vector (7).png" alt="Shipping Icon" width={40} height={40} />
               </div>
               <h3 className="text-lg font-bold text-[#A4161A] mb-1">
                 SHIPPING (FREE)
@@ -475,7 +518,7 @@ export default function Home() {
             {/* Item 8 */}
             <div className="bg-[#E9F2FA] rounded-md p-8 text-center flex flex-col items-center justify-center shadow-sm">
               <div className="w-[70px] h-[70px] bg-white rounded-full flex items-center justify-center text-[#002E5B] font-bold mb-4">
-                <Image src="/icon-shield.png" alt="Protection Icon" width={40} height={40} />
+                <Image src="/Vector (8).png" alt="Protection Icon" width={40} height={40} />
               </div>
               <h3 className="text-lg font-bold text-[#002E5B] mb-1">
                 SHIPPING PROTECTION
